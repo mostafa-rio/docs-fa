@@ -1,28 +1,24 @@
-# Composition API: <br>تزریق وابستگی (Dependency Injection) {#composition-api-dependency-injection}
+# Composition API: <br>Dependency Injection {#composition-api-dependency-injection}
 
-##  متد ()provide {#provide}
+## provide() {#provide}
 
-یک مقدار 
-(value)
- را برای 
- inject 
- کردن در کامپوننتهای فرزند فراهم میکند.
+Provides a value that can be injected by descendant components.
 
-- **تایپ (Type)**
+- **Type**
 
   ```ts
   function provide<T>(key: InjectionKey<T> | string, value: T): void
   ```
 
-- **جزئیات**
+- **Details**
 
-  تابع `()provide` دو ورودی قبول میکند. کلید (key) که میتواند از نوع string یا symbol باشد و مقدار (value) برای inject کردن.
+  `provide()` takes two arguments: the key, which can be a string or a symbol, and the value to be injected.
 
- در زمان استفاده از تایپ اسکریپت کلید (‌key) میتواند یک symbol  باشد که به `InjectionKey` کست (cast) شده - یک utility type فراهم شده توسط Vue که ‍‍`Symbol` را extends میکند و میتواند برای همگام سازی (sync) تایپ مقدار (value) بین `()provide` و ‍`()inject` استفاده شود.
+  When using TypeScript, the key can be a symbol casted as `InjectionKey` - a Vue provided utility type that extends `Symbol`, which can be used to sync the value type between `provide()` and `inject()`.
 
-مشابه API های ثبت  lifecycle hook تابع `()provide` باید به صورت همزمان (synchronous) در طول مرحله ‍‍`()setup` متعلق به کامپوننت فراخوانی شود.
+  Similar to lifecycle hook registration APIs, `provide()` must be called synchronously during a component's `setup()` phase.
 
-- **مثالها**
+- **Example**
 
   ```vue
   <script setup>
@@ -41,14 +37,15 @@
   </script>
   ```
 
-- **همچنین ببینید**
+- **See also**
   - [Guide - Provide / Inject](/guide/components/provide-inject)
   - [Guide - Typing Provide / Inject](/guide/typescript/composition-api#typing-provide-inject) <sup class="vt-badge ts" />
 
-## تابع ()inject {#inject}
-یک مقدار که توسط کامپوننت‌های اجداد  (ancestor) یا خود اپلیکیشن (توسط ()app.provide) فراهم (provide) شده است را inject میکند.
+## inject() {#inject}
 
-- **تایپ (Type)**
+Injects a value provided by an ancestor component or the application (via `app.provide()`).
+
+- **Type**
 
   ```ts
   // without default value
@@ -65,23 +62,21 @@
   ): T
   ```
 
-- **جزئیات**
+- **Details**
 
-  اولین آرگومان Injection Key است. Vue از زنجیره والدین بالا می‌رود تا یک مقدار provide شده با کلید همسان پیدا کند. اگر چندین کامپوننت در زنجیره والدین همان کلید را فراهم کنند، کامپوننتی که به کامپوننت  inject کننده (injecting component) نزدیک‌تر است، مقادیر بالاتر در زنجیره را "shadow" میکند. اگر هیچ مقداری با کلید همسان پیدا نشد، تابع `()inject` مقدار undefined را بر می‌گرداند مگر اینکه یک مقدار پیش‌فرض فراهم شده باشد.
+  The first argument is the injection key. Vue will walk up the parent chain to locate a provided value with a matching key. If multiple components in the parent chain provides the same key, the one closest to the injecting component will "shadow" those higher up the chain. If no value with matching key was found, `inject()` returns `undefined` unless a default value is provided.
 
-دومین آرگومان اختیاری است و مقدار پیشفرضی است برای استفاده در زمانی که هیچ مقداری پیدا نشده باشد.
+  The second argument is optional and is the default value to be used when no matching value was found.
 
-دومین آرگومان میتواند یک تابع فکتوری (factory function) باشد که مقادیری را که هزینه ساخت انها زیاد است را بر میگرداند. در این مورد ‍‍مقدار `true` باید به عنوان سومین آرگومان ارسال (pass) شود که نشان دهد تابع باید به عنوان فکتوری استفاده شود و نه خود مقدار (value).
+  The second argument can also be a factory function that returns values that are expensive to create. In this case, `true` must be passed as the third argument to indicate that the function should be used as a factory instead of the value itself.
 
-مشابه API های ثبت  lifecycle hook تابع `()inject` 
- باید به صورت همزمان (synchronous) در طول مرحله ‍‍`()setup` متعلق به کامپوننت فراخوانی شود.
+  Similar to lifecycle hook registration APIs, `inject()` must be called synchronously during a component's `setup()` phase.
 
-در زمان استفاده از تایپ اسکریپت کلید (key) میتواند از تایپ `InjectionKey` باشد -  یک utility type فراهم شده توسط Vue که ‍‍`Symbol` را extends میکند و میتواند برای همگام سازی (sync) تایپ مقدار (value) بین `()provide` و ‍`()inject` استفاده شود.
+  When using TypeScript, the key can be of type of `InjectionKey` - a Vue-provided utility type that extends `Symbol`, which can be used to sync the value type between `provide()` and `inject()`.
 
+- **Example**
 
-- **مثالها**
-
- فرض میکنیم یک کامپوننت والد مقادیری را فراهم میکند همانطور که در مثال قبل برای `()provide` نمایش داده شد:
+  Assuming a parent component has provided values as shown in the previous `provide()` example:
 
   ```vue
   <script setup>
@@ -108,16 +103,16 @@
   </script>
   ```
 
-## تابع ()hasInjectionContext <sup class="vt-badge" data-text="3.3+" /> {#has-injection-context}
+## hasInjectionContext() <sup class="vt-badge" data-text="3.3+" /> {#has-injection-context}
 
-این تابع وقتی [()inject](#inject) را بتوان بدون هشدار (warning) درباره فراخوانی در محل اشتباه فراخوانی کرد مقدار true برمیگرداند (برای مثال بیرون از تابع ()setup). این تابع برای استفاده توسط کتابخانه ها طراحی شده که میخواهند از تابع `()inject` به صورت داخلی بدون trigger کردن هشدار به کاربر استفاده کنند.
+Returns true if [inject()](#inject) can be used without warning about being called in the wrong place (e.g. outside of `setup()`). This method is designed to be used by libraries that want to use `inject()` internally without triggering a warning to the end user.
 
-- **تایپ (Type)**
+- **Type**
 
   ```ts
   function hasInjectionContext(): boolean
   ```
 
-* ** همچنین ببینید **
+* **See also**
   - [Guide - Provide / Inject](/guide/components/provide-inject)
   - [Guide - Typing Provide / Inject](/guide/typescript/composition-api#typing-provide-inject) <sup class="vt-badge ts" />
